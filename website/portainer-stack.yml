@@ -1,0 +1,29 @@
+services:
+  iptv-website:
+    image: php:8.2-apache
+    container_name: iptv-website
+    restart: unless-stopped
+    ports:
+      - "8181:80"
+    environment:
+      TZ: America/Toronto
+    volumes:
+      - /opt/iptv-website:/var/www/html
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        if ! php -m | grep -qi '^curl$$' || ! php -m | grep -qi '^dom$$' || ! php -m | grep -qi '^mbstring$$'; then
+          apt-get update
+          apt-get install -y --no-install-recommends libcurl4-openssl-dev libxml2-dev libonig-dev
+          docker-php-ext-install -j2 curl dom mbstring
+          rm -rf /var/lib/apt/lists/*
+        fi
+        a2enmod rewrite headers
+        exec apache2-foreground
+    healthcheck:
+      test: ["CMD-SHELL", "php -m | grep -qi '^curl$$' && php -m | grep -qi '^dom$$' && php -m | grep -qi '^mbstring$$' && test -f /var/www/html/index.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
