@@ -1,0 +1,16 @@
+services:
+  iptv-website:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: iptv-hostinger-v85:local
+    container_name: iptv-hostinger-v85
+    restart: unless-stopped
+    ports:
+      - "8181:80"
+    environment:
+      TZ: America/Toronto
+    volumes:
+      - iptv-v85-storage:/var/www/html/storage
+volumes:
+  iptv-v85-storage:
