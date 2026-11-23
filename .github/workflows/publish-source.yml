@@ -1,0 +1,71 @@
+name: Publish corrected website source
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-source.yml'
+      - 'website/IPTV-v85-DietPi-Docker-Ready.zip'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract and correct original PHP source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile,shutil
+          root=Path('website')
+          with zipfile.ZipFile(root/'IPTV-v85-DietPi-Docker-Ready.zip') as z:
+              z.extractall('/tmp/iptv-source')
+          src=Path('/tmp/iptv-source/IPTV-v85-DietPi-Docker/website')
+          assert (src/'index.php').is_file()
+          for p in src.rglob('*'):
+              if p.is_file() and 'storage' not in p.relative_to(src).parts:
+                  dest=root/'source'/p.relative_to(src)
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  shutil.copy2(p,dest)
+          p=root/'source/index.php';s=p.read_text()
+          old="if(strlen($pass)<12)throw new Exception('Use at least 12 characters');"
+          assert old in s
+          s=s.replace(old,"if($pass==='')throw new Exception('Enter a password');")
+          s=s.replace('required minlength="12"','required')
+          p.write_text(s)
+          p=root/'source/epg_delivery_status.php';s=p.read_text()
+          assert '$w=workspace(data(),wsid());' in s
+          p.write_text(s.replace('$w=workspace(data(),wsid());','$store=data();$w=workspace($store,wsid());'))
+          p=root/'source/refresh_ajax.php';s=p.read_text()
+          assert s.startswith('<?php')
+          s=s.replace('<?php',"""<?php
+          // Return JSON rather than PHP warning markup on fatal refresh failures.
+          ini_set('display_errors','0');
+          ini_set('log_errors','1');
+          ob_start();
+          register_shutdown_function(static function ():void {
+              $error=error_get_last();
+              if($error && in_array($error['type'],[E_ERROR,E_PARSE,E_CORE_ERROR,E_COMPILE_ERROR,E_USER_ERROR],true)){
+                  while(ob_get_level()>0)ob_end_clean();
+                  http_response_code(500);
+                  header('Content-Type: application/json; charset=utf-8');
+                  echo json_encode(['error'=>'Refresh server error; check PHP container logs']);
+              }
+          });
+          """,1)
+          p.write_text(s)
+          PY
+      - name: PHP syntax validation
+        run: |
+          find website/source -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Commit corrected source files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/source
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish corrected v85 website source"
+            git push
+          fi
