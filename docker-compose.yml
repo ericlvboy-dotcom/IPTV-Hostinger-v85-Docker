@@ -1,6 +1,6 @@
 services:
   iptv-website:
-    image: php:8.2-apache
+    image: ghcr.io/ericlvboy-dotcom/iptv-v85-website:latest
     container_name: iptv-hostinger-v85
     restart: unless-stopped
     ports:
@@ -9,46 +9,16 @@ services:
       TZ: America/Toronto
     volumes:
       - iptv-v85-files:/var/www/html
-    command:
-      - /bin/sh
-      - -ec
-      - |
-        apt-get update
-        apt-get install -y --no-install-recommends curl unzip libcurl4-openssl-dev libxml2-dev libonig-dev
-        docker-php-ext-install -j2 curl dom mbstring
-        a2enmod rewrite headers
-        curl -fsSL --retry 3 https://github.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/archive/refs/heads/main.zip -o /tmp/iptv-source.zip
-        mkdir -p /tmp/iptv-release
-        unzip -q /tmp/iptv-source.zip -d /tmp/iptv-release
-        SRC=/tmp/iptv-release/IPTV-Hostinger-v85-Docker-main/website/source
-        test -f "$$SRC/index.php" || { echo "Corrected source not yet published in GitHub; stopping without changing website"; exit 1; }
-        mkdir -p /var/www/html/storage
-        cp -a "$$SRC/." /var/www/html/
-        chown -R www-data:www-data /var/www/html/storage
-        chmod 700 /var/www/html/storage
-        rm -rf /tmp/iptv-source.zip /tmp/iptv-release
-        exec apache2-foreground
+
   epg-multiclient:
-    image: python:3.12-slim
+    image: ghcr.io/ericlvboy-dotcom/iptv-v85-epg:latest
     container_name: iptv-v85-epg
     restart: unless-stopped
     environment:
-      IPTV_STORAGE: /storage
+      IPTV_STORAGE: /site/storage
       EPG_INTERVAL_SECONDS: "300"
     volumes:
-      - iptv-v85-files:/storage
-    command:
-      - /bin/sh
-      - -ec
-      - |
-        apt-get update
-        apt-get install -y --no-install-recommends curl unzip
-        curl -fsSL --retry 3 https://github.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/archive/refs/heads/main.zip -o /tmp/repo.zip
-        mkdir -p /opt/epg /tmp/release
-        unzip -q /tmp/repo.zip -d /tmp/release
-        cp -a /tmp/release/IPTV-Hostinger-v85-Docker-main/epg-service/. /opt/epg/
-        cd /opt/epg
-        exec python -u worker.py
+      - iptv-v85-files:/site
 
 volumes:
   iptv-v85-files:
