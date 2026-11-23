@@ -67,5 +67,7 @@ jobs:
           git add website/source
           if ! git diff --cached --quiet; then
             git commit -m "Publish corrected v85 website source"
-            git push
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
