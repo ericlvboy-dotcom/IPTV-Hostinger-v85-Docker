@@ -12,7 +12,7 @@ try{
   if(is_array($multiMeta)&&($multiMeta['channels']??0)>0&&($multiMeta['programmes']??0)>0&&$multiSize>1024&&$multiSize===(int)($multiMeta['bytes']??0)){
    $multiFile=$multiBase.'.gz';
    $fp=@fopen($multiFile,'rb');$magic=$fp?fread($fp,2):'';if($fp)fclose($fp);
-   if($magic==="\\x1f\\x8b"){
+   if($magic===chr(31).chr(139)){
     epg_delivery_event('xmltv','multiclient_served');
     header('Content-Type: application/xml; charset=utf-8');
     header('Content-Encoding: gzip');
