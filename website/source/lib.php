@@ -984,7 +984,7 @@ function xc_response($payload):void {header('Content-Type: application/json; cha
 function xc_auth_details(array $w):array {
  $username=(string)($_GET['username']??'');$password=(string)($_GET['password']??'');
  $base=xc_base();$parts=parse_url($base);$scheme=$parts['scheme']??'https';$host=$parts['host']??'localhost';$port=$parts['port']??($scheme==='https'?443:80);
- return ['user_info'=>['username'=>$username,'password'=>$password,'message'=>'IPTV Smart Merger','auth'=>1,'status'=>'Active','exp_date'=>(string)(time()+315360000),'is_trial'=>'0','active_cons'=>'0','created_at'=>'0','max_connections'=>'1','allowed_output_formats'=>['m3u8','ts']],'server_info'=>['url'=>$base,'port'=>(string)$port,'https_port'=>'443','server_protocol'=>$scheme,'rtmp_port'=>'0','timezone'=>'America/Toronto','timestamp_now'=>time(),'time_now'=>date('Y-m-d H:i:s')]];
+ return ['user_info'=>['username'=>$username,'password'=>$password,'message'=>'IPTV Smart Merger','auth'=>1,'status'=>'Active','exp_date'=>(string)(time()+315360000),'is_trial'=>'0','active_cons'=>'0','created_at'=>'0','max_connections'=>'1','allowed_output_formats'=>['m3u8','ts']],'server_info'=>['url'=>$host,'port'=>(string)$port,'https_port'=>'443','server_protocol'=>$scheme,'rtmp_port'=>'0','timezone'=>'America/Toronto','timestamp_now'=>time(),'time_now'=>date('Y-m-d H:i:s')]];
 }
 function xc_stream_url(array $w,int $id):?string {
  if($id<1||!isset($w['channels'][$id-1]))return null;
