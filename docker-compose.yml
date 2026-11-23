@@ -8,17 +8,17 @@ services:
     environment:
       TZ: America/Toronto
     volumes:
-      - iptv-v85-files:/var/www/html
+      - iptv-v85-storage:/var/www/html/storage
 
   epg-multiclient:
     image: ghcr.io/ericlvboy-dotcom/iptv-v85-epg:latest
     container_name: iptv-v85-epg
     restart: unless-stopped
     environment:
-      IPTV_STORAGE: /site/storage
+      IPTV_STORAGE: /storage
       EPG_INTERVAL_SECONDS: "300"
     volumes:
-      - iptv-v85-files:/site
+      - iptv-v85-storage:/storage
 
 volumes:
-  iptv-v85-files:
+  iptv-v85-storage:
