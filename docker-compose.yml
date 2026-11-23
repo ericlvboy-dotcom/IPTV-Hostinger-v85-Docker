@@ -28,5 +28,27 @@ services:
         chmod 700 /var/www/html/storage
         rm -rf /tmp/iptv-source.zip /tmp/iptv-release
         exec apache2-foreground
+  epg-multiclient:
+    image: python:3.12-slim
+    container_name: iptv-v85-epg
+    restart: unless-stopped
+    environment:
+      IPTV_STORAGE: /storage
+      EPG_INTERVAL_SECONDS: "300"
+    volumes:
+      - iptv-v85-files:/storage
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends curl unzip
+        curl -fsSL --retry 3 https://github.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/archive/refs/heads/main.zip -o /tmp/repo.zip
+        mkdir -p /opt/epg /tmp/release
+        unzip -q /tmp/repo.zip -d /tmp/release
+        cp -a /tmp/release/IPTV-Hostinger-v85-Docker-main/epg-service/. /opt/epg/
+        cd /opt/epg
+        exec python -u worker.py
+
 volumes:
   iptv-v85-files:
