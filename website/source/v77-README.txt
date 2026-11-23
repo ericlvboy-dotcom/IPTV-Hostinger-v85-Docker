@@ -1,0 +1,1 @@
+v77: EPG final merge now advances one cached source per dashboard request, with separate compression request. Reuse existing downloaded EPG fragments. Preserve storage/ when uploading. No playlist/media code changed.

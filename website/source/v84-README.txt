@@ -1,0 +1,1 @@
+v84: TV series episode IDs are now signed 31-bit integers for TiviMate compatibility. Reopen/reload series details in TiviMate to obtain fresh episode IDs. Preserves storage, catalogs, EPG, and passthrough. This fix is not yet live-tested.

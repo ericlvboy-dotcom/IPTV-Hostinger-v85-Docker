@@ -1,0 +1,11 @@
+Options -Indexes
+DirectoryIndex index.php
+RewriteEngine On
+RewriteRule ^live/([^/]+)/([^/]+)/([0-9]+)\.(ts|m3u8)$ live.php?username=$1&password=$2&stream_id=$3 [B,L,QSA]
+
+# GitHub MultiClient-compatible authenticated stream redirect route
+RewriteRule ^stream/([0-9]+)/?$ live.php?stream_id=$1 [L,QSA]
+
+# VOD and series use authenticated output URLs; redirects are provider-direct.
+RewriteRule ^movie/([^/]+)/([^/]+)/([0-9]+)\.([a-zA-Z0-9]+)$ media.php?kind=movie&username=$1&password=$2&id=$3 [B,L,QSA]
+RewriteRule ^series/([^/]+)/([^/]+)/([0-9]+)\.([a-zA-Z0-9]+)$ media.php?kind=episode&username=$1&password=$2&id=$3 [B,L,QSA]

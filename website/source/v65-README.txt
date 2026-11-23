@@ -1,0 +1,1 @@
+v65 EPG status logging fix. Logs Xtream EPG requests at endpoint entry, including failures and unmapped streams. Shows XMLTV redirects separately. Provider-direct downloads after redirects cannot be observed. Preserves storage and player endpoints. Upload over /multi/.

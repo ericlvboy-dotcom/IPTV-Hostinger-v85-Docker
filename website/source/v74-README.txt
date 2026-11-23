@@ -1,0 +1,1 @@
+v74 EPG parser fix: XMLReader::readOuterXML() avoids null ownerDocument when expand() produces detached DOM nodes. Applied in source fragment generation and final merged publication. Protects prior guide if no programmes were found. Preserves storage and stream passthrough.

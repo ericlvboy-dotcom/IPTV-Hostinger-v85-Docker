@@ -1,0 +1,1 @@
+v67: Adds EPGShare01 ALL Sources to the EPG preset catalog. This only adds a selectable preset; it does not change active passthrough selection, combine guides, or process EPG. Preserve storage/ when uploading.

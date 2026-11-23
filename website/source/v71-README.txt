@@ -1,0 +1,1 @@
+v71: Doubles EPG download safety cap from 250 MB to 500 MB and decompressed XMLTV safety cap from 1 GB to 2 GB. Smart EPG refresh remains 12 hours / 70% coverage. Preserve storage/ on upgrade. Large feeds still require adequate disk and PHP execution time.

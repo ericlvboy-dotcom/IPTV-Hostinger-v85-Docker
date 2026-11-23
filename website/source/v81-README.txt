@@ -1,0 +1,1 @@
+v81: Restore cross-host HTTPS EPG redirect support only when redirect does not carry provider credentials. Redirects remain bounded, DNS/private-IP checked and HTTPS enforced. No storage/ included. Based on v80.

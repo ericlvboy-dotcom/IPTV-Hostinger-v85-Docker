@@ -1,0 +1,1 @@
+v83: Dashboard login persistence. 30-day session cookie and PHP session retention. Sign out still clears the login. Hostinger session storage cleanup may override retention; if that occurs, persistent token storage is needed. Preserve storage/ during upload.

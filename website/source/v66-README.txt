@@ -1,0 +1,1 @@
+v66 GUI cleanup: Removed obsolete EPG processing queue message and EPG refresh interval setting from dashboard. Kept EPG delivery status, player request counters, source management, and pending deletion review. No changes to player endpoints, EPG passthrough or storage. Upload over /multi/ preserving storage/.

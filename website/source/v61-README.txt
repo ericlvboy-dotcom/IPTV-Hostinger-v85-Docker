@@ -1,0 +1,1 @@
+v61 HOTFIX: defines missing player_epg_register() that caused PHP fatal errors in v60 player endpoints. EPG processing runs as a shutdown task after player output, rate-limited with a lock. Upload over /multi/ and preserve storage/. No cron required. Hostinger live testing still needed.

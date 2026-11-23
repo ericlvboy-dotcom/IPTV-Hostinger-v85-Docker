@@ -1,0 +1,1 @@
+v82: Explicit opt-in credential-bearing HTTPS redirect for 247 EPG from vod003.xyz to cleanshorts.today only. WARNING: destination may receive provider username/password. Other hosts remain blocked. Preserve storage/ during deployment. This does not guarantee EPG matching or programme coverage.
