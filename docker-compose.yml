@@ -17,21 +17,16 @@ services:
         apt-get install -y --no-install-recommends curl unzip libcurl4-openssl-dev libxml2-dev libonig-dev
         docker-php-ext-install -j2 curl dom mbstring
         a2enmod rewrite headers
-        if [ ! -f /var/www/html/index.php ]; then
-          curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/website/IPTV-v85-DietPi-Docker-Ready.zip -o /tmp/website.zip
-          mkdir -p /tmp/iptv-extract
-          unzip -q /tmp/website.zip -d /tmp/iptv-extract
-          test -f /tmp/iptv-extract/IPTV-v85-DietPi-Docker/website/index.php
-          cp -a /tmp/iptv-extract/IPTV-v85-DietPi-Docker/website/. /var/www/html/
-          rm -rf /tmp/website.zip /tmp/iptv-extract
-        fi
+        curl -fsSL --retry 3 https://github.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/archive/refs/heads/main.zip -o /tmp/iptv-source.zip
+        mkdir -p /tmp/iptv-release
+        unzip -q /tmp/iptv-source.zip -d /tmp/iptv-release
+        SRC=/tmp/iptv-release/IPTV-Hostinger-v85-Docker-main/website/source
+        test -f "$$SRC/index.php" || { echo "Corrected source not yet published in GitHub; stopping without changing website"; exit 1; }
         mkdir -p /var/www/html/storage
+        cp -a "$$SRC/." /var/www/html/
         chown -R www-data:www-data /var/www/html/storage
         chmod 700 /var/www/html/storage
-        curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/remove-password-minimum.php -o /tmp/fix-password.php
-        php /tmp/fix-password.php
-        curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/fix-status-endpoints.php -o /tmp/fix-status.php
-        php /tmp/fix-status.php
+        rm -rf /tmp/iptv-source.zip /tmp/iptv-release
         exec apache2-foreground
 volumes:
   iptv-v85-files:
