@@ -1,0 +1,40 @@
+name: Verify MultiClient EPG integration
+on:
+  push:
+    paths:
+      - 'epg-service/**'
+      - 'website/source/xmltv.php'
+      - 'docker-compose.yml'
+      - '.github/workflows/verify-epg.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python syntax
+        run: python -m compileall -q epg-service
+      - name: PHP syntax
+        run: php -l website/source/xmltv.php
+      - name: MultiClient XMLTV integration smoke test
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, tempfile, sys
+          from pathlib import Path
+          sys.path.insert(0, 'epg-service')
+          from worker import build_workspace
+          with tempfile.TemporaryDirectory() as folder:
+              import worker
+              worker.STORE=Path(folder)
+              source=Path(folder)/('epg-cache-'+hashlib.sha256(b'guide1').hexdigest()+'.xml')
+              source.write_text('<tv><channel id="a"><display-name>A</display-name></channel><programme channel="a" start="20261123000000 +0000"><title>Test</title></programme></tv>')
+              build_workspace('master', {'epg':[{'id':'guide1','enabled':True}]})
+              output=Path(folder)/('epg-multiclient-'+hashlib.sha256(b'master').hexdigest()+'.xml.gz')
+              assert output.exists()
+              assert b'<programme' in gzip.decompress(output.read_bytes())
+              metadata=json.loads(Path(str(output)[:-3]+'.json').read_text())
+              assert metadata['channels']==1 and metadata['programmes']==1
+          PY
