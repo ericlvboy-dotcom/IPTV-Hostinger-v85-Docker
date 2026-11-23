@@ -1,9 +1,6 @@
 services:
   iptv-website:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: iptv-hostinger-v85:local
+    image: php:8.2-apache
     container_name: iptv-hostinger-v85
     restart: unless-stopped
     ports:
@@ -11,6 +8,30 @@ services:
     environment:
       TZ: America/Toronto
     volumes:
-      - iptv-v85-storage:/var/www/html/storage
+      - iptv-v85-files:/var/www/html
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends curl unzip libcurl4-openssl-dev libxml2-dev libonig-dev
+        docker-php-ext-install -j2 curl dom mbstring
+        a2enmod rewrite headers
+        if [ ! -f /var/www/html/index.php ]; then
+          curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/website/IPTV-v85-DietPi-Docker-Ready.zip -o /tmp/website.zip
+          mkdir -p /tmp/iptv-extract
+          unzip -q /tmp/website.zip -d /tmp/iptv-extract
+          test -f /tmp/iptv-extract/IPTV-v85-DietPi-Docker/website/index.php
+          cp -a /tmp/iptv-extract/IPTV-v85-DietPi-Docker/website/. /var/www/html/
+          rm -rf /tmp/website.zip /tmp/iptv-extract
+        fi
+        mkdir -p /var/www/html/storage
+        chown -R www-data:www-data /var/www/html/storage
+        chmod 700 /var/www/html/storage
+        curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/remove-password-minimum.php -o /tmp/fix-password.php
+        php /tmp/fix-password.php
+        curl -fsSL --retry 3 https://raw.githubusercontent.com/ericlvboy-dotcom/IPTV-Hostinger-v85-Docker/main/fix-status-endpoints.php -o /tmp/fix-status.php
+        php /tmp/fix-status.php
+        exec apache2-foreground
 volumes:
-  iptv-v85-storage:
+  iptv-v85-files:
